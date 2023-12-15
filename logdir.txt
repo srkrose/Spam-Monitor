@@ -1,0 +1,6 @@
+mail
+spam
+spam/hourlycheck
+spam/limitexceeded
+spam/mailqueue
+temp
