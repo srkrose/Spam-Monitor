@@ -1,3 +1,4 @@
+logs
 mail
 spam
 spam/hourlycheck
