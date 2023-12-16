@@ -1,0 +1,7 @@
+# Add cronjobs to /etc/crontab
+
+X X X X X sudo sh /home/sample/scripts/remove/rmvoldlogs.sh > /dev/null 2>&1
+X X X X X sudo sh /home/sample/scripts/remove/rmvtemp.sh > /dev/null 2>&1
+
+X X X X X sudo sh /home/sample/scripts/spam/hourlycheck.sh > /dev/null 2>&1
+X X X X X sudo sh /home/sample/scripts/spam/limitexceeded.sh > /dev/null 2>&1
