@@ -18,20 +18,20 @@ function dovecot_login() {
 				domain=$(echo "$email" | awk -F@ '{print $NF}')
 				username=$(whmapi1 getdomainowner domain=$domain | grep -i "user:" | awk '{print $2}')
 				count=($(whmapi1 emailtrack_stats user=$username startdate=$(date -d '1 hours ago' +"%s") enddate=$(date -d 'now' +"%s") | grep -ie "DEFERCOUNT\|FAILCOUNT"))
-				difer=$(echo -e "${count[1]}")
+				defer=$(echo -e "${count[1]}")
 				fail=$(echo -e "${count[5]}")
 				status=$(whmapi1 accountsummary user=$username | grep -i "outgoing_mail_suspended:" | awk '{print $2}')
 
 				if [ "$status" -eq 0 ]; then
 					header
 
-					printf "%-20s %-15s %-10s %-10s %-15s %-70s\n" "$time" "$username" "$difer" "$fail" "Active" "$email" >>$svrlogs/spam/hourlycheck/dovecotlogin_$date.txt
+					printf "%-20s %-15s %-10s %-10s %-15s %-70s\n" "$time" "$username" "$defer" "$fail" "Active" "$email" >>$svrlogs/spam/hourlycheck/dovecotlogin_$date.txt
 
-					notify
+					record_check
 				else
 					header
 
-					printf "%-20s %-15s %-10s %-10s %-15s %-70s\n" "$time" "$username" "$difer" "$fail" "Suspended" "$email" >>$svrlogs/spam/hourlycheck/dovecotlogin_$date.txt
+					printf "%-20s %-15s %-10s %-10s %-15s %-70s\n" "$time" "$username" "$defer" "$fail" "Suspended" "$email" >>$svrlogs/spam/hourlycheck/dovecotlogin_$date.txt
 				fi
 			fi
 		done <"$temp/dovecotlogin_$time.txt"
@@ -40,19 +40,26 @@ function dovecot_login() {
 
 function header() {
 	if [ ! -f $svrlogs/spam/hourlycheck/dovecotlogin_$date.txt ]; then
-		printf "%-20s %-15s %-10s %-10s %-15s %-70s\n" "DATE_TIME" "USER" "DIFER" "FAIL" "STATUS" "EMAIL" >>$svrlogs/spam/hourlycheck/dovecotlogin_$date.txt
+		printf "%-20s %-15s %-10s %-10s %-15s %-70s\n" "DATE_TIME" "USER" "DEFER" "FAIL" "STATUS" "EMAIL" >>$svrlogs/spam/hourlycheck/dovecotlogin_$date.txt
 	fi
 }
 
-function notify() {
-	if [ "$fail" -gt 10 ]; then
+function record_check() {
+	if [[ $defer -gt 30 || $fail -gt 10 ]]; then
 		suspend_user
 
-		content=$(echo "$username: last hour failed - $fail *$category* $action")
+		notify
 
-		send_sms
+	else
+		spamrecord=($(find $svrlogs/spam/hourlycheck -type f -name "dovecotlogin*" -exec ls -lat {} + | grep "$(date -d '1 hours ago' +"%F")" | head -1 | awk '{print $NF}'))
 
-		send_mail
+		prev=$(cat $spamrecord | awk -v username=$username '{if($2==username) print}' | grep "$(date -d '1 hours ago' +"%F_%H:")")
+
+		if [[ ! -z "$prev" ]]; then
+			suspend_user
+
+			notify
+		fi
 	fi
 }
 
@@ -64,6 +71,14 @@ function suspend_user() {
 	else
 		action="NOT SUSPENDED"
 	fi
+}
+
+function notify() {
+	content=$(echo "$username: last hour: Deferred - $defer - Failed - $fail *$category* $action")
+
+	send_sms
+
+	send_mail
 }
 
 function send_sms() {
