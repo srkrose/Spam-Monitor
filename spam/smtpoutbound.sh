@@ -84,7 +84,7 @@ function send_sms() {
 }
 
 function send_mail() {
-	sh $scripts/spam/spammail.sh "$category" "$username" "$fail" "$action"
+	sh $scripts/spam/spammail.sh "$category" "$username" "$defer" "$fail" "$action"
 }
 
 exim_mainlog
