@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source /home/rlksvrlogs/scripts/dataset.sh
+source /home/sample/scripts/dataset.sh
 
 function exim_mainlog() {
 	grep -i "cwd=/home" /var/log/exim_mainlog | grep -ie "$(date -d '1 hour ago' +"%F %H:")" | awk '{print "DATE: "$1,"\tUSER: "$3}' | sed 's/cwd=\/home\///' | sort | uniq -c | sort -nr >>$temp/cwdhome_$time.txt
