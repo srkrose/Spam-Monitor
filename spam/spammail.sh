@@ -4,7 +4,7 @@ source /home/sample/scripts/dataset.sh
 
 category="$1"
 username="$2"
-fail="$3"
+defer="$3"
 fail="$4"
 action="$5"
 
