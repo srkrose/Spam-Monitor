@@ -5,7 +5,8 @@ source /home/sample/scripts/dataset.sh
 category="$1"
 username="$2"
 fail="$3"
-action="$4"
+fail="$4"
+action="$5"
 
 function send_mail() {
 	mtime=$(date +"%F_%T")
@@ -17,6 +18,7 @@ function send_mail() {
 	printf "%-10s %20s\n" "Time:" "$(date +"%T")" >>$svrlogs/mail/spammail_$mtime.txt
 	printf "%-10s %20s\n" "Category:" "$category" >>$svrlogs/mail/spammail_$mtime.txt
 	printf "%-10s %20s\n" "Username:" "$username" >>$svrlogs/mail/spammail_$mtime.txt
+	printf "%-10s %20s\n" "Deferred:" "$defer" >>$svrlogs/mail/spammail_$mtime.txt
 	printf "%-10s %20s\n" "Failed:" "$fail" >>$svrlogs/mail/spammail_$mtime.txt
 	printf "%-10s %20s\n" "Status:" "$action" >>$svrlogs/mail/spammail_$mtime.txt
 	sendmail "$emailmo,$emailmg" <$svrlogs/mail/spammail_$mtime.txt
