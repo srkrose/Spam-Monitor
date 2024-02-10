@@ -18,8 +18,8 @@ function dovecot_login() {
 	sh $scripts/spam/dovecotlogin.sh
 }
 
-function root_mail() {
-	sh $scripts/spam/rootmail.sh
+function spam_reject() {
+	sh $scripts/spam/spamreject.sh
 }
 
 function mail_queue() {
@@ -34,6 +34,6 @@ dovecot_plain
 
 smtp_outbound
 
-root_mail
+spam_reject
 
 mail_queue
